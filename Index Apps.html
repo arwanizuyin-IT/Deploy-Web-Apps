@@ -1,0 +1,820 @@
+<!-- file: index.html -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Web Apps Tracker - By Zuyin </title>
+  <!-- Tailwind CSS Premium Visual Base Framework -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <!-- Google Modern Font Architecture -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Chart Pustaka visualisasi kelas atas -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f8f9fa;
+      color: #122b1a;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #e2e8f0;
+      border-radius: 10px;
+    }
+    .bottom-nav-blur {
+      backdrop-filter: blur(20px);
+      background-color: rgba(255, 255, 255, 0.92);
+    }
+    .card-premium-gradient {
+      background: linear-gradient(135deg, #122b1a 0%, #0f331f 100%);
+    }
+  </style>
+</head>
+<body class="pb-24 max-w-md mx-auto min-h-screen relative shadow-2xl bg-white bg-opacity-95">
+
+  <!-- ================= HEADER UTAMA APP ================= -->
+  <header class="p-5 flex justify-between items-center sticky top-0 bg-white/80 backdrop-blur-md z-40 border-b border-gray-100">
+    <div class="flex flex-col">
+      <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase">SOLUSI CERDAS UANG ANDA</span>
+      <div class="mt-1 flex items-center h-7">
+        <img src="https://lh3.googleusercontent.com/d/1VcszlLTGDgtlzgjXd9DUH6vpy9TTaKyk" referrerpolicy="no-referrer" alt="KeuanganKu Logo" class="h-full object-contain w-auto">
+      </div>
+    </div>
+    <div>
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-full shadow-xs">
+        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+        <span>Online</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= WADAH KONTEN DINAMIS (PAGES) ================= -->
+  <main id="app-content" class="p-4 space-y-6">
+    
+    <!-- PAGE 1: DASHBOARD CONTAINER -->
+    <section id="page-dashboard" class="space-y-6">
+      <!-- Wallet Balance Premium Card -->
+      <div class="card-premium-gradient text-white p-6 rounded-[28px] shadow-xl relative overflow-hidden">
+        <p class="text-xs font-medium text-gray-300 tracking-wide uppercase">Wallet Balance</p>
+        <h2 id="dash-balance" class="text-3xl font-extrabold mt-1 tracking-tight text-white">Rp 0</h2>
+        <div class="h-[1px] bg-white/10 my-5"></div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Pemasukan</p>
+            <p id="dash-income" class="text-base font-bold text-[#8eff59] mt-0.5">+Rp 0</p>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Pengeluaran</p>
+            <p id="dash-expense" class="text-base font-bold text-rose-400 mt-0.5">-Rp 0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Area Chart Tren Card -->
+      <div class="bg-white border border-gray-100 p-5 rounded-[24px] shadow-xs">
+        <div class="flex justify-between items-center mb-4">
+          <h4 class="text-sm font-bold text-gray-800">Tren Mingguan</h4>
+          <span class="text-[11px] font-semibold bg-gray-100 text-gray-500 px-2.5 py-1 rounded-full">7 Hari Terakhir</span>
+        </div>
+        <div class="w-full h-48">
+          <canvas id="chart-trend"></canvas>
+        </div>
+      </div>
+
+      <!-- Recent Activity Section -->
+      <div class="space-y-3">
+        <div class="flex justify-between items-center">
+          <h4 class="text-sm font-bold text-gray-800">Aktivitas Terbaru</h4>
+          <button onclick="switchTab('histori')" class="text-xs font-bold text-[#0f331f] flex items-center gap-1 hover:opacity-80 transition">
+            <span>Lihat Semua</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
+          </button>
+        </div>
+        <div id="dash-recent-list" class="space-y-3">
+          <!-- Render via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 2: HISTORI TRANSAKSI CONTAINER -->
+    <section id="page-histori" class="hidden space-y-4">
+      <div class="flex items-center gap-2">
+        <div class="relative flex-1">
+          <input type="text" id="search-input" oninput="triggerSearch()" placeholder="Cari kategori atau catatan..." class="w-full text-xs bg-white border border-gray-200 rounded-full pl-9 pr-4 py-2.5 focus:outline-none focus:border-[#0f331f] transition">
+          <svg class="w-4 h-4 text-gray-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        </div>
+        <select id="filter-type-select" onchange="triggerSearch()" class="text-xs bg-white border border-gray-200 rounded-full px-3 py-2.5 focus:outline-none focus:border-[#0f331f]">
+          <option value="Semua">Semua</option>
+          <option value="Pemasukan">Masuk</option>
+          <option value="Pengeluaran">Keluar</option>
+        </select>
+      </div>
+
+      <div id="history-container" class="space-y-3 overflow-y-auto max-h-[60vh] pr-1 custom-scrollbar">
+        <!-- Render Riwayat -->
+      </div>
+      
+      <div id="lazy-loader" class="text-center py-2 hidden">
+        <span class="text-xs text-gray-400 animate-pulse">Memuat data histori lainnya...</span>
+      </div>
+    </section>
+
+    <!-- PAGE 3: CATAT / INPUT TRANSACTION -->
+    <section id="page-catat" class="hidden space-y-5 bg-white border border-gray-100 p-5 rounded-[24px]">
+      <div class="text-center pb-2 border-b border-gray-100">
+        <h3 class="text-sm font-bold text-gray-800">Catat Transaksi</h3>
+        <p class="text-xs text-gray-400 mt-1">Pilih tipe catatan kas dan isi detail nominal keuangan harian Anda.</p>
+      </div>
+      
+      <div class="grid grid-cols-2 p-1 bg-gray-100 rounded-xl border border-gray-200">
+        <button id="btn-segment-masuk" onclick="setFormTipe('Pemasukan')" class="py-2.5 text-xs font-bold rounded-lg transition text-white bg-[#122b1a]">Masuk (Pemasukan)</button>
+        <button id="btn-segment-keluar" onclick="setFormTipe('Pengeluaran')" class="py-2.5 text-xs font-bold rounded-lg transition text-gray-500 hover:text-gray-800">Keluar (Pengeluaran)</button>
+      </div>
+
+      <form id="tx-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Nominal (Rupiah)</label>
+          <div class="relative">
+            <span class="absolute left-4 top-3 text-sm font-bold text-gray-400">Rp</span>
+            <input type="text" id="form-nominal" required placeholder="0" oninput="formatInputMasking(this)" class="w-full text-base font-extrabold bg-gray-50/50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#122b1a] text-gray-800">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Pilih Kategori</label>
+          <div id="form-category-pills" class="flex flex-wrap gap-2">
+            <!-- Render via JS -->
+          </div>
+          <input type="hidden" id="form-kategori-val" required>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Catatan Tambahan</label>
+          <input type="text" id="form-catatan" placeholder="Contoh: Bonus bulanan, belanja mingguan..." class="w-full text-xs bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#122b1a]">
+        </div>
+
+        <button type="submit" class="w-full bg-[#122b1a] hover:bg-[#0f331f] text-[#8eff59] font-bold text-xs py-3.5 rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+          <span>Simpan Catatan Keuangan</span>
+        </button>
+      </form>
+    </section>
+
+    <!-- PAGE 4: LABA RUGI / DUAL DISTRIBUTION REPORT -->
+    <section id="page-labarugi" class="hidden space-y-6">
+      
+      <!-- Ringkasan Total Pendapatan & Pengeluaran -->
+      <div class="bg-white border border-gray-100 p-5 rounded-[24px] shadow-xs space-y-4">
+        <div class="text-center border-b border-gray-100 pb-3">
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">TOTAL PENDAPATAN</p>
+          <h2 id="report-total-income" class="text-2xl font-extrabold text-emerald-600 mt-0.5 tracking-tight">Rp 0</h2>
+        </div>
+        <div class="text-center">
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">TOTAL PENGELUARAN</p>
+          <h2 id="report-total-expense" class="text-2xl font-extrabold text-rose-500 mt-0.5 tracking-tight">Rp 0</h2>
+        </div>
+        <p class="text-[11px] text-gray-400 text-center leading-relaxed px-2">Berikut rincian kontribusi pos keuangan Anda. Analisis pos pemasukan dan pengeluaran terbesar untuk mempermudah strategi manajemen finansial Anda.</p>
+      </div>
+
+      <!-- KELOMPOK DIAGRAM PENDAPATAN -->
+      <div class="bg-white border border-gray-100 p-5 rounded-[24px] shadow-xs space-y-5">
+        <div class="flex justify-between items-center">
+          <h4 class="text-sm font-bold text-gray-800">Diagram Pendapatan</h4>
+          <span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-100">Sumber Dana</span>
+        </div>
+        <div class="flex flex-col items-center py-2">
+          <div class="w-full max-w-[190px] h-[190px] relative">
+            <canvas id="chart-doughnut-income"></canvas>
+          </div>
+        </div>
+        <div class="space-y-3 pt-2">
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Breakdown per Kategori Pendapatan</p>
+          <div id="report-income-breakdown-list" class="space-y-3">
+            <!-- Render via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- KELOMPOK DIAGRAM PENGELUARAN -->
+      <div class="bg-white border border-gray-100 p-5 rounded-[24px] shadow-xs space-y-5">
+        <div class="flex justify-between items-center">
+          <h4 class="text-sm font-bold text-gray-800">Diagram Pengeluaran</h4>
+          <span class="text-[10px] font-bold bg-gray-50 text-gray-500 px-2.5 py-1 rounded-full border border-gray-100">Distribusi Pos</span>
+        </div>
+        <div class="flex flex-col items-center py-2">
+          <div class="w-full max-w-[190px] h-[190px] relative">
+            <canvas id="chart-doughnut-categories"></canvas>
+          </div>
+        </div>
+        <div class="space-y-3 pt-2">
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Breakdown per Kategori Pengeluaran</p>
+          <div id="report-breakdown-list" class="space-y-3">
+            <!-- Render via JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 5: MANAGED KATEGORI -->
+    <section id="page-kategori" class="hidden space-y-5">
+      <div class="bg-white border border-gray-100 p-5 rounded-[24px] shadow-xs">
+        <h4 class="text-sm font-bold text-gray-800 mb-3">Tambah Kategori Baru</h4>
+        <form id="kat-form" onsubmit="handleCategorySubmit(event)" class="space-y-3">
+          <div class="grid grid-cols-2 gap-2">
+            <select id="kat-form-tipe" class="text-xs bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#122b1a]">
+              <option value="Pemasukan">Pemasukan (Masuk)</option>
+              <option value="Pengeluaran">Pengeluaran (Keluar)</option>
+            </select>
+            <input type="text" id="kat-form-nama" required placeholder="Nama Kategori..." class="text-xs bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#122b1a]">
+          </div>
+          <button type="submit" class="w-full bg-[#122b1a] text-[#8eff59] text-xs font-bold py-2.5 rounded-xl hover:opacity-90 transition">
+            Daftarkan Kategori
+          </button>
+        </form>
+      </div>
+
+      <div class="bg-white border border-gray-100 p-5 rounded-[24px] shadow-xs space-y-3">
+        <h4 class="text-sm font-bold text-gray-800">Daftar Kategori Terdaftar</h4>
+        <div id="kat-master-list" class="space-y-2 max-h-[40vh] overflow-y-auto custom-scrollbar pr-1">
+          <!-- Render via JS -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= STICKY BOTTOM NAVIGATION BAR ================= -->
+  <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bottom-nav-blur border-t border-gray-100 px-2 py-2 flex justify-around items-center z-50 rounded-t-[24px] shadow-2xl">
+    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center gap-1 py-1 px-3 text-[#122b1a] transition active:scale-95">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+      <span class="text-[9px] font-bold">Dashboard</span>
+    </button>
+    <button onclick="switchTab('histori')" id="nav-histori" class="flex flex-col items-center gap-1 py-1 px-3 text-gray-400 transition active:scale-95">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <span class="text-[9px] font-semibold">Histori</span>
+    </button>
+    
+    <button onclick="switchTab('catat')" id="nav-catat" class="w-12 h-12 rounded-full bg-[#122b1a] flex items-center justify-center text-[#8eff59] shadow-lg -mt-5 border-4 border-white transition active:scale-90">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+    </button>
+
+    <button onclick="switchTab('labarugi')" id="nav-labarugi" class="flex flex-col items-center gap-1 py-1 px-3 text-gray-400 transition active:scale-95">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.003 9.003 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+      <span class="text-[9px] font-semibold">Laba Rugi</span>
+    </button>
+    <button onclick="switchTab('kategori')" id="nav-kategori" class="flex flex-col items-center gap-1 py-1 px-3 text-gray-400 transition active:scale-95">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+      <span class="text-[9px] font-semibold">Kategori</span>
+    </button>
+  </nav>
+
+  <!-- ================= TOAST CUSTOM & CUSTOM MODAL ALERT ================= -->
+  <div id="toast-msg" class="fixed top-20 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-2xl opacity-0 translate-y-2 pointer-events-none transition-all duration-300 z-50"></div>
+
+  <div id="confirm-modal" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl p-5 w-full max-w-xs space-y-4 shadow-xl">
+      <h5 class="text-sm font-bold text-gray-800">Konfirmasi Hapus</h5>
+      <p class="text-xs text-gray-500 leading-relaxed">Apakah Anda yakin ingin menghapus elemen kategori ini? Seluruh riwayat transaksi terkait tidak akan hilang.</p>
+      <div class="grid grid-cols-2 gap-2 pt-2">
+        <button onclick="closeConfirmModal()" class="py-2 text-xs font-bold text-gray-500 bg-gray-100 rounded-lg">Batal</button>
+        <button id="confirm-delete-btn" class="py-2 text-xs font-bold text-white bg-rose-600 rounded-lg">Ya, Hapus</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= LOGIKA UTAMA FRONTEND APPLICATION ================= -->
+  <script>
+    var state = {
+      walletBalance: 0,
+      totalPemasukan: 0,
+      totalPengeluaran: 0,
+      categories: [],
+      currentTab: 'dashboard',
+      formTipe: 'Pemasukan',
+      historyList: [],
+      hasMoreHistory: false,
+      limitHistory: 10,
+      offsetHistory: 0,
+      searchKey: "",
+      filterType: "Semua",
+      deleteTargetId: null
+    };
+
+    var trendChartObj = null;
+    var doughnutChartObj = null;
+    var incomeDoughnutChartObj = null;
+    var isFetchingHistory = false;
+
+    document.addEventListener("DOMContentLoaded", function() {
+      initAppEngine();
+      
+      var box = document.getElementById('history-container');
+      box.addEventListener('scroll', function() {
+        if ((box.scrollTop + box.clientHeight) >= (box.scrollHeight - 12)) {
+          if (state.hasMoreHistory && !isFetchingHistory) {
+            loadNextHistoryChunk();
+          }
+        }
+      });
+    });
+
+    function formatInputMasking(input) {
+      var position = input.selectionStart;
+      var cleanValue = input.value.replace(/\D/g, "");
+      if (!cleanValue) {
+        input.value = "";
+        return;
+      }
+      var lengthBefore = input.value.length;
+      var formatted = parseInt(cleanValue, 10).toLocaleString('id-ID');
+      input.value = formatted;
+      var lengthAfter = input.value.length;
+      input.setSelectionRange(position + (lengthAfter - lengthBefore), position + (lengthAfter - lengthBefore));
+    }
+
+    function initAppEngine() {
+      if (typeof google !== 'undefined') {
+        google.script.run.withSuccessHandler(function(res) {
+          state.walletBalance = res.walletBalance;
+          state.totalPemasukan = res.totalPemasukan;
+          state.totalPengeluaran = res.totalPengeluaran;
+          state.categories = res.categories;
+          
+          updateDashboardUI();
+          renderCategoryFormPills();
+          renderCategoryMasterList();
+          loadReportAndCharts();
+          triggerSearch(); 
+        }).getAppData();
+      } else {
+        state.walletBalance = -3750000;
+        state.totalPemasukan = 31660000;
+        state.totalPengeluaran = 35410000;
+        state.categories = [
+          {id:'1', tipe:'Pemasukan', nama:'Gaji'},
+          {id:'2', tipe:'Pemasukan', nama:'Freelance'},
+          {id:'3', tipe:'Pemasukan', nama:'Investasi'},
+          {id:'4', tipe:'Pengeluaran', nama:'Healthcare'},
+          {id:'5', tipe:'Pengeluaran', nama:'Entertainment'},
+          {id:'6', tipe:'Pengeluaran', nama:'Food'},
+          {id:'7', tipe:'Pengeluaran', nama:'Others'}
+        ];
+        state.historyList = [
+          {id:'TX-20260716-0001', tanggal:'16/07/2026', jam:'09:00:00', tipe:'Pengeluaran', kategori:'Healthcare', nominal:30060000, catatan:'Biaya Operasi'},
+          {id:'TX-20260715-0001', tanggal:'15/07/2026', jam:'10:00:00', tipe:'Pemasukan', kategori:'Gaji', nominal:25000000, catatan:'Gaji Pokok'}
+        ];
+        
+        updateDashboardUI();
+        renderCategoryFormPills();
+        renderCategoryMasterList();
+        renderDummyCharts();
+        renderLocalHistoryDOM(false);
+      }
+    }
+
+    function updateDashboardUI() {
+      document.getElementById('dash-balance').innerText = "Rp " + state.walletBalance.toLocaleString('id-ID');
+      document.getElementById('dash-income').innerText = "+Rp " + state.totalPemasukan.toLocaleString('id-ID');
+      document.getElementById('dash-expense').innerText = "-Rp " + state.totalPengeluaran.toLocaleString('id-ID');
+      
+      var listContainer = document.getElementById('dash-recent-list');
+      listContainer.innerHTML = "";
+      
+      var items = state.historyList.slice(0, 3);
+      if (items.length === 0) {
+        listContainer.innerHTML = "<p class='text-xs text-center text-gray-400 py-3'>Belum ada rekaman transaksi.</p>";
+        return;
+      }
+      
+      for (var i = 0; i < items.length; i++) {
+        var tx = items[i];
+        var isExpense = tx.tipe === 'Pengeluaran';
+        var textSign = isExpense ? "-Rp " : "+Rp ";
+        var colorSign = isExpense ? "text-rose-500 font-bold" : "text-emerald-600 font-bold";
+        var iconColor = isExpense ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-600";
+        var initials = tx.kategori.substring(0, 2).toUpperCase();
+        
+        var html = "<div class='flex justify-between items-center bg-white border border-gray-100 p-3 rounded-2xl shadow-2xs'>" +
+                     "<div class='flex items-center gap-3'>" +
+                       "<div class='w-9 h-9 text-xs rounded-xl flex items-center justify-center font-bold " + iconColor + "'>" + initials + "</div>" +
+                       "<div>" +
+                         "<p class='text-xs font-bold text-gray-800'>" + tx.catatan + "</p>" +
+                         "<p class='text-[10px] text-gray-400 mt-0.5'>" + tx.tanggal + " &bull; " + tx.kategori + "</p>" +
+                       "</div>" +
+                     "</div>" +
+                     "<div class='text-xs text-right " + colorSign + "'>" + textSign + tx.nominal.toLocaleString('id-ID') + "</div>" +
+                   "</div>";
+        listContainer.innerHTML += html;
+      }
+    }
+
+    function triggerSearch() {
+      state.offsetHistory = 0;
+      state.searchKey = document.getElementById('search-input').value;
+      state.filterType = document.getElementById('filter-type-select').value;
+      
+      if (typeof google === 'undefined') return;
+      
+      isFetchingHistory = true;
+      google.script.run.withSuccessHandler(function(res) {
+        state.historyList = res.transactions;
+        state.hasMoreHistory = res.hasMore;
+        isFetchingHistory = false;
+        renderLocalHistoryDOM(false);
+        updateDashboardUI();
+      }).getPaginatedTransactions(state.limitHistory, state.offsetHistory, state.searchKey, state.filterType);
+    }
+
+    function loadNextHistoryChunk() {
+      if (!state.hasMoreHistory || isFetchingHistory) return;
+      state.offsetHistory += state.limitHistory;
+      
+      document.getElementById('lazy-loader').classList.remove('hidden');
+      isFetchingHistory = true;
+      
+      google.script.run.withSuccessHandler(function(res) {
+        state.historyList = state.historyList.concat(res.transactions);
+        state.hasMoreHistory = res.hasMore;
+        isFetchingHistory = false;
+        document.getElementById('lazy-loader').classList.add('hidden');
+        renderLocalHistoryDOM(true);
+      }).getPaginatedTransactions(state.limitHistory, state.offsetHistory, state.searchKey, state.filterType);
+    }
+
+    function renderLocalHistoryDOM(appendMode) {
+      var box = document.getElementById('history-container');
+      if (!appendMode) box.innerHTML = "";
+      
+      var items = appendMode ? state.historyList.slice(state.offsetHistory) : state.historyList;
+      if (items.length === 0 && !appendMode) {
+        box.innerHTML = "<p class='text-xs text-center text-gray-400 py-10'>Data riwayat tidak ditemukan.</p>";
+        return;
+      }
+      
+      for (var i = 0; i < items.length; i++) {
+        var tx = items[i];
+        var isExpense = tx.tipe === 'Pengeluaran';
+        var textSign = isExpense ? "-Rp " : "+Rp ";
+        var colorSign = isExpense ? "text-rose-500 font-bold" : "text-emerald-600 font-bold";
+        var initials = tx.kategori.substring(0, 2).toUpperCase();
+        
+        var html = "<div class='flex justify-between items-center bg-white border border-gray-100 p-3.5 rounded-2xl shadow-3xs'>" +
+                     "<div class='flex items-center gap-3'>" +
+                       "<div class='w-9 h-9 text-xs font-bold rounded-xl flex items-center justify-center bg-gray-50 text-gray-600'>" + initials + "</div>" +
+                       "<div>" +
+                         "<p class='text-xs font-bold text-gray-800'>" + tx.catatan + "</p>" +
+                         "<p class='text-[10px] text-gray-400 mt-0.5'>" + tx.id + " &bull; " + tx.tanggal + " " + tx.jam + "</p>" +
+                       "</div>" +
+                     "</div>" +
+                     "<div class='text-right'>" +
+                       "<span class='text-xs " + colorSign + "'>" + textSign + tx.nominal.toLocaleString('id-ID') + "</span>" +
+                       "<p class='text-[9px] text-gray-400 font-semibold uppercase mt-0.5'>" + tx.kategori + "</p>" +
+                     "</div>" +
+                   "</div>";
+        box.innerHTML += html;
+      }
+    }
+
+    function loadReportAndCharts() {
+      if (typeof google === 'undefined') return;
+      
+      google.script.run.withSuccessHandler(function(res) {
+        document.getElementById('report-total-income').innerText = "Rp " + res.totalPendapatan.toLocaleString('id-ID');
+        document.getElementById('report-total-expense').innerText = "Rp " + res.totalPengeluaran.toLocaleString('id-ID');
+        
+        // Render List Breakdown Pengeluaran
+        var breakdownList = document.getElementById('report-breakdown-list');
+        breakdownList.innerHTML = "";
+        if (res.breakdownKategori.length === 0) {
+          breakdownList.innerHTML = "<p class='text-xs text-center text-gray-400 py-2'>Belum ada data pengeluaran.</p>";
+        } else {
+          for (var i = 0; i < res.breakdownKategori.length; i++) {
+            var row = res.breakdownKategori[i];
+            breakdownList.innerHTML += "<div class='space-y-1'>" +
+                            "<div class='flex justify-between text-xs font-semibold text-gray-700'>" +
+                              "<span>" + row.kategori + "</span>" +
+                              "<span>Rp " + row.nominal.toLocaleString('id-ID') + " (" + row.persentase + "%)</span>" +
+                            "</div>" +
+                            "<div class='w-full bg-gray-100 h-1.5 rounded-full overflow-hidden'>" +
+                              "<div class='bg-[#0f331f] h-full rounded-full' style='width: " + row.persentase + "%'></div>" +
+                            "</div>" +
+                          "</div>";
+          }
+        }
+        
+        // Render List Breakdown Pendapatan
+        var incBreakdownList = document.getElementById('report-income-breakdown-list');
+        incBreakdownList.innerHTML = "";
+        if (res.breakdownPendapatan.length === 0) {
+          incBreakdownList.innerHTML = "<p class='text-xs text-center text-gray-400 py-2'>Belum ada data pendapatan.</p>";
+        } else {
+          for (var k = 0; k < res.breakdownPendapatan.length; k++) {
+            var incRow = res.breakdownPendapatan[k];
+            incBreakdownList.innerHTML += "<div class='space-y-1'>" +
+                            "<div class='flex justify-between text-xs font-semibold text-gray-700'>" +
+                              "<span>" + incRow.kategori + "</span>" +
+                              "<span>Rp " + incRow.nominal.toLocaleString('id-ID') + " (" + incRow.persentase + "%)</span>" +
+                            "</div>" +
+                            "<div class='w-full bg-gray-100 h-1.5 rounded-full overflow-hidden'>" +
+                              "<div class='bg-emerald-600 h-full rounded-full' style='width: " + incRow.persentase + "%'></div>" +
+                            "</div>" +
+                          "</div>";
+          }
+        }
+        
+        // Line Chart Tren
+        if (trendChartObj) trendChartObj.destroy();
+        var ctxTrend = document.getElementById('chart-trend').getContext('2d');
+        trendChartObj = new Chart(ctxTrend, {
+          type: 'line',
+          data: {
+            labels: res.trend.labels,
+            datasets: [
+              { label: 'Masuk', data: res.trend.pemasukan, borderColor: '#a3e635', backgroundColor: 'rgba(163,230,53,0.04)', tension: 0.4, fill: true, borderWidth: 2.5 },
+              { label: 'Keluar', data: res.trend.pengeluaran, borderColor: '#f43f5e', backgroundColor: 'rgba(244,63,94,0.04)', tension: 0.4, fill: true, borderWidth: 2.5 }
+            ]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { font: { size: 9 } } }, x: { grid: { display: false }, ticks: { font: { size: 9 } } } } }
+        });
+
+        // Doughnut Chart Pengeluaran
+        if (doughnutChartObj) doughnutChartObj.destroy();
+        var ctxDoughnut = document.getElementById('chart-doughnut-categories').getContext('2d');
+        var dLabels = res.breakdownKategori.map(function(x){return x.kategori;});
+        var dData = res.breakdownKategori.map(function(x){return x.nominal;});
+        if(dData.length === 0) { dLabels = ["Belum Ada"]; dData = [1]; }
+        doughnutChartObj = new Chart(ctxDoughnut, {
+          type: 'doughnut',
+          data: { labels: dLabels, datasets: [{ data: dData, backgroundColor: ['#0f331f', '#a3e635', '#64748b', '#f43f5e', '#fbbf24', '#38bdf8'], borderWidth: 2 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '72%' }
+        });
+
+        // Doughnut Chart Pendapatan
+        if (incomeDoughnutChartObj) incomeDoughnutChartObj.destroy();
+        var ctxIncDoughnut = document.getElementById('chart-doughnut-income').getContext('2d');
+        var incLabels = res.breakdownPendapatan.map(function(x){return x.kategori;});
+        var incData = res.breakdownPendapatan.map(function(x){return x.nominal;});
+        if(incData.length === 0) { incLabels = ["Belum Ada"]; incData = [1]; }
+        incomeDoughnutChartObj = new Chart(ctxIncDoughnut, {
+          type: 'doughnut',
+          data: { labels: incLabels, datasets: [{ data: incData, backgroundColor: ['#059669', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0'], borderWidth: 2 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '72%' }
+        });
+
+      }).getReportData();
+    }
+
+    function renderDummyCharts() {
+      document.getElementById('report-total-income').innerText = "Rp 31.660.000";
+      document.getElementById('report-total-expense').innerText = "Rp 31.660.000";
+      
+      var bList = document.getElementById('report-breakdown-list');
+      bList.innerHTML = "<div class='space-y-1'><div class='flex justify-between text-xs font-semibold text-gray-700'><span>Healthcare</span><span>Rp 30.060.000 (94.95%)</span></div><div class='w-full bg-gray-100 h-1.5 rounded-full overflow-hidden'><div class='bg-[#0f331f] h-full rounded-full' style='width: 94.95%'></div></div></div>" +
+                        "<div class='space-y-1'><div class='flex justify-between text-xs font-semibold text-gray-700'><span>Entertainment</span><span>Rp 650.000 (2.05%)</span></div><div class='w-full bg-gray-100 h-1.5 rounded-full overflow-hidden'><div class='bg-[#0f331f] h-full rounded-full' style='width: 2.05%'></div></div></div>" +
+                        "<div class='space-y-1'><div class='flex justify-between text-xs font-semibold text-gray-700'><span>Food</span><span>Rp 510.000 (1.61%)</span></div><div class='w-full bg-gray-100 h-1.5 rounded-full overflow-hidden'><div class='bg-[#0f331f] h-full rounded-full' style='width: 1.61%'></div></div></div>";
+      
+      var iList = document.getElementById('report-income-breakdown-list');
+      iList.innerHTML = "<div class='space-y-1'><div class='flex justify-between text-xs font-semibold text-gray-700'><span>Gaji</span><span>Rp 25.000.000 (78.96%)</span></div><div class='w-full bg-gray-100 h-1.5 rounded-full overflow-hidden'><div class='bg-emerald-600 h-full rounded-full' style='width: 78.96%'></div></div></div>" +
+                        "<div class='space-y-1'><div class='flex justify-between text-xs font-semibold text-gray-700'><span>Freelance</span><span>Rp 5.000.000 (15.79%)</span></div><div class='w-full bg-gray-100 h-1.5 rounded-full overflow-hidden'><div class='bg-emerald-600 h-full rounded-full' style='width: 15.79%'></div></div></div>" +
+                        "<div class='space-y-1'><div class='flex justify-between text-xs font-semibold text-gray-700'><span>Investasi</span><span>Rp 1.660.000 (5.24%)</span></div><div class='w-full bg-gray-100 h-1.5 rounded-full overflow-hidden'><div class='bg-emerald-600 h-full rounded-full' style='width: 5.24%'></div></div></div>";
+
+      var ctxTrend = document.getElementById('chart-trend').getContext('2d');
+      new Chart(ctxTrend, { type: 'line', data: { labels: ['13/07','14/07','15/07','16/07','17/07','18/07','19/07'], datasets: [{ data: [25,0,5,0,1.6,0,0], borderColor: '#a3e635' }, { data: [0.15,0.36,1.13,30.06,0.13,0.16,0], borderColor: '#f43f5e' }] } });
+      
+      var ctxDoughnut = document.getElementById('chart-doughnut-categories').getContext('2d');
+      new Chart(ctxDoughnut, { type: 'doughnut', data: { labels: ['Healthcare', 'Entertainment', 'Food'], datasets: [{ data: [30060000, 650000, 510000], backgroundColor: ['#0f331f', '#a3e635', '#64748b'] }] } });
+
+      var ctxIncDoughnut = document.getElementById('chart-doughnut-income').getContext('2d');
+      new Chart(ctxIncDoughnut, { type: 'doughnut', data: { labels: ['Gaji', 'Freelance', 'Investasi'], datasets: [{ data: [25000000, 5000000, 1660000], backgroundColor: ['#059669', '#10b981', '#34d399'] }] } });
+    }
+
+    function setFormTipe(tipe) {
+      state.formTipe = tipe;
+      var btnMasuk = document.getElementById('btn-segment-masuk');
+      var btnKeluar = document.getElementById('btn-segment-keluar');
+      if (tipe === 'Pemasukan') {
+        btnMasuk.className = "py-2.5 text-xs font-bold rounded-lg transition text-white bg-[#122b1a]";
+        btnKeluar.className = "py-2.5 text-xs font-bold rounded-lg transition text-gray-500 hover:text-gray-800";
+      } else {
+        btnKeluar.className = "py-2.5 text-xs font-bold rounded-lg transition text-white bg-[#122b1a]";
+        btnMasuk.className = "py-2.5 text-xs font-bold rounded-lg transition text-gray-500 hover:text-gray-800";
+      }
+      renderCategoryFormPills();
+    }
+
+    function renderCategoryFormPills() {
+      var container = document.getElementById('form-category-pills');
+      container.innerHTML = "";
+      var filtered = state.categories.filter(function(c) { return c.tipe === state.formTipe; });
+      if (filtered.length === 0) {
+        container.innerHTML = "<p class='text-xs text-gray-400'>Belum ada pill kategori.</p>";
+        return;
+      }
+      for (var i = 0; i < filtered.length; i++) {
+        var cat = filtered[i];
+        var pill = document.createElement('button');
+        pill.type = "button";
+        pill.innerText = cat.nama;
+        pill.className = "px-3 py-1.5 text-xs font-medium rounded-full bg-gray-100 border border-gray-200 text-gray-600 transition active:scale-95";
+        pill.setAttribute('onclick', "selectCategoryPill(this, '" + cat.nama + "')");
+        container.appendChild(pill);
+      }
+      document.getElementById('form-kategori-val').value = "";
+    }
+
+    function selectCategoryPill(element, categoryName) {
+      var pills = document.getElementById('form-category-pills').getElementsByTagName('button');
+      for (var i = 0; i < pills.length; i++) {
+        pills[i].className = "px-3 py-1.5 text-xs font-medium rounded-full bg-gray-100 border border-gray-200 text-gray-600 transition active:scale-95";
+      }
+      element.className = "px-3 py-1.5 text-xs font-bold rounded-full bg-[#a3e635] text-[#122b1a] border border-[#a3e635]";
+      document.getElementById('form-kategori-val').value = categoryName;
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      var maskVal = document.getElementById('form-nominal').value;
+      var nominal = parseFloat(maskVal.replace(/\./g, ''));
+      var kategori = document.getElementById('form-kategori-val').value;
+      var catatan = document.getElementById('form-catatan').value;
+      
+      if (isNaN(nominal) || nominal <= 0) {
+        showToast("Peringatan: Nominal besaran kas tidak valid!");
+        return;
+      }
+      if (!kategori) {
+        showToast("Peringatan: Harap pilih salah satu pill kategori!");
+        return;
+      }
+      
+      var today = new Date();
+      var dateString = ("0" + today.getDate()).slice(-2) + "/" + ("0" + (today.getMonth() + 1)).slice(-2) + "/" + today.getFullYear();
+      
+      var localTxMock = {
+        id: "TX-PENDING",
+        tanggal: dateString,
+        jam: today.getHours() + ":" + today.getMinutes(),
+        tipe: state.formTipe,
+        kategori: kategori,
+        nominal: nominal,
+        catatan: catatan ? catatan : "Transaksi Kas Harian"
+      };
+      
+      state.historyList.unshift(localTxMock);
+      if (state.formTipe === 'Pemasukan') {
+        state.walletBalance += nominal;
+        state.totalPemasukan += nominal;
+      } else {
+        state.walletBalance -= nominal;
+        state.totalPengeluaran += nominal;
+      }
+      
+      updateDashboardUI();
+      renderLocalHistoryDOM(false);
+      showToast("Berhasil (Optimistic UI): Tersimpan secara lokal!");
+      
+      document.getElementById('form-nominal').value = "";
+      document.getElementById('form-catatan').value = "";
+      renderCategoryFormPills();
+      switchTab('dashboard');
+      
+      if (typeof google !== 'undefined') {
+        google.script.run.withSuccessHandler(function(res) {
+          if (res.success) {
+            showToast("Sinkronisasi Selesai: Spreadsheet terupdate.");
+            triggerSearch();
+            loadReportAndCharts();
+          }
+        }).saveTransaction(localTxMock.tipe, localTxMock.kategori, localTxMock.nominal, localTxMock.catatan);
+      }
+    }
+
+    function handleCategorySubmit(e) {
+      e.preventDefault();
+      var tipe = document.getElementById('kat-form-tipe').value;
+      var nama = document.getElementById('kat-form-nama').value.trim();
+      if (!nama) return;
+      
+      if (typeof google !== 'undefined') {
+        google.script.run.withSuccessHandler(function(res) {
+          if (res.success) {
+            state.categories.push({ id: res.id, tipe: res.tipe, nama: res.nama });
+            renderCategoryMasterList();
+            renderCategoryFormPills();
+            document.getElementById('kat-form-nama').value = "";
+            showToast("Kategori baru berhasil didaftarkan.");
+          }
+        }).saveCategory(tipe, nama);
+      } else {
+        state.categories.push({ id: Date.now().toString(), tipe: tipe, nama: nama });
+        renderCategoryMasterList();
+        renderCategoryFormPills();
+        document.getElementById('kat-form-nama').value = "";
+        showToast("Sandbox: Kategori lokal terdaftar.");
+      }
+    }
+
+    function renderCategoryMasterList() {
+      var box = document.getElementById('kat-master-list');
+      box.innerHTML = "";
+      if (state.categories.length === 0) {
+        box.innerHTML = "<p class='text-xs text-gray-400 py-2'>Belum ada data kategori master.</p>";
+        return;
+      }
+      for (var i = 0; i < state.categories.length; i++) {
+        var cat = state.categories[i];
+        var badge = cat.tipe === 'Pemasukan' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200';
+        box.innerHTML += "<div class='flex justify-between items-center bg-gray-50/70 border border-gray-100 px-3 py-2 rounded-xl'>" +
+                     "<div class='flex items-center gap-2'>" +
+                       "<span class='text-[10px] font-bold px-2 py-0.5 border rounded-md " + badge + "'>" + cat.tipe + "</span>" +
+                       "<span class='text-xs font-semibold text-gray-800'>" + cat.nama + "</span>" +
+                     "</div>" +
+                     "<button onclick='askDeleteCategory(\"" + cat.id + "\")' class='text-gray-400 hover:text-rose-500 p-1 transition'>" +
+                       "<svg class='w-3.5 h-3.5' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'></path></svg>" +
+                     "</button>" +
+                   "</div>";
+      }
+    }
+
+    function askDeleteCategory(id) {
+      state.deleteTargetId = id;
+      document.getElementById('confirm-modal').classList.remove('hidden');
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirm-modal').classList.add('hidden');
+      state.deleteTargetId = null;
+    }
+
+    function executeCategoryDelete() {
+      var id = state.deleteTargetId;
+      if (!id) return;
+      if (typeof google !== 'undefined') {
+        google.script.run.withSuccessHandler(function(res) {
+          if (res.success) {
+            state.categories = state.categories.filter(function(c) { return c.id !== id; });
+            renderCategoryMasterList();
+            renderCategoryFormPills();
+            showToast("Kategori berhasil terhapus.");
+            closeConfirmModal();
+          }
+        }).deleteCategory(id);
+      } else {
+        state.categories = state.categories.filter(function(c) { return c.id !== id; });
+        renderCategoryMasterList();
+        renderCategoryFormPills();
+        showToast("Sandbox: Kategori dihapus.");
+        closeConfirmModal();
+      }
+    }
+
+    function switchTab(tabId) {
+      state.currentTab = tabId;
+      document.getElementById('page-dashboard').classList.add('hidden');
+      document.getElementById('page-histori').classList.add('hidden');
+      document.getElementById('page-catat').classList.add('hidden');
+      document.getElementById('page-labarugi').classList.add('hidden');
+      document.getElementById('page-kategori').classList.add('hidden');
+      
+      var navIds = ['dashboard', 'histori', 'labarugi', 'kategori'];
+      for (var i = 0; i < navIds.length; i++) {
+        var el = document.getElementById('nav-' + navIds[i]);
+        if (el) {
+          el.className = "flex flex-col items-center gap-1 py-1 px-3 text-gray-400 transition active:scale-95";
+          var span = el.getElementsByTagName('span')[0];
+          if (span) span.className = "text-[9px] font-semibold";
+        }
+      }
+      
+      document.getElementById('page-' + tabId).classList.remove('hidden');
+      var activeNav = document.getElementById('nav-' + tabId);
+      if (activeNav) {
+        activeNav.className = "flex flex-col items-center gap-1 py-1 px-3 text-[#122b1a] transition active:scale-95";
+        var spanActive = activeNav.getElementsByTagName('span')[0];
+        if (spanActive) spanActive.className = "text-[9px] font-bold";
+      }
+      
+      if (tabId === 'labarugi' || tabId === 'dashboard') {
+        loadReportAndCharts();
+      }
+    }
+
+    function showToast(msg) {
+      var toast = document.getElementById('toast-msg');
+      toast.innerText = msg;
+      toast.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(function() {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none');
+      }, 3500);
+    }
+  </script>
+</body>
+</html>
